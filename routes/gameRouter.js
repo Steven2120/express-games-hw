@@ -73,24 +73,18 @@ router.post("/create-new-game", function (req, res) {
 });
 
 router.put("/update-game/:id", function (req, res) {
-  let canUpdate = false;
-  let foundGame;
-  games.forEach(function (item) {
-    if (item.id === req.params.id) {
-      canUpdate = true;
-      foundTeam = item;
-    }
-  });
-  if (canUpdate) {
-    let isFound = games.findIndex((item) => item.game === req.body.updatedName);
-    if (isFound > -1) {
-      res.json({ message: "Cannot update because game already exists" });
-    } else {
-      foundGame.game = req.body.updatedName;
-      res.json({ foundGame });
-    }
+  const { game, description } = req.body;
+  if (game.length === 0 || description.length === 0) {
+    res.status(500).json({ message: "fields cannot be empty" });
+  }
+  const { id } = req.params;
+  let foundGameIndex = games.findIndex((item) => item.id === id);
+  if (foundGameIndex === -1) {
+    res.status(404).json({ message: "Game not found, cannot update" });
   } else {
-    res.json({ message: "Game not found! Cannot update!" });
+    games[foundGameIndex].game = game;
+    games[foundGameIndex].description = description;
+    res.json({ payload: games });
   }
 });
 
